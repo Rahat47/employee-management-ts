@@ -1,10 +1,18 @@
 import { Request } from 'express';
 import asyncHandler from 'express-async-handler';
+import { nanoid } from 'nanoid';
 import { HttpStatusCodes } from '../constants/httpStatusCodes';
-import { CreateUserInput, VerifyUserInput } from '../schemas/user.schema';
-import { createUser, findUserById } from '../services/user.service';
+import {
+    CreateUserInput,
+    ForgotPasswordInput,
+    VerifyUserInput,
+    ResetPasswordInput,
+} from '../schemas/user.schema';
+import { createUser, findUser, findUserById } from '../services/user.service';
 import AppError from '../utils/AppError';
+import logger from '../utils/logger';
 import sendEmail from '../utils/mailer';
+import { omitUserData } from '../utils/omitData';
 
 export const createUserHandler = asyncHandler(
     async (req: Request<{}, {}, CreateUserInput>, res, next) => {
@@ -22,7 +30,7 @@ export const createUserHandler = asyncHandler(
         res.status(HttpStatusCodes.OK).json({
             status: 'success',
             data: {
-                user,
+                user: omitUserData(user),
             },
             message: 'User created successfully',
         });
@@ -82,5 +90,101 @@ export const verifyUserHandler = asyncHandler(
         });
 
         // TODO: set verification code to null
+    }
+);
+
+export const forgotPasswordHandler = asyncHandler(
+    async (req: Request<{}, {}, ForgotPasswordInput>, res, next) => {
+        const { email } = req.body;
+
+        const user = await findUser({ email });
+
+        if (!user) {
+            logger.warn(`User with email ${email} not found`);
+            return next(
+                new AppError(
+                    'If a user with that email is registered, an email will be sent to reset the password',
+                    HttpStatusCodes.OK
+                )
+            );
+        }
+
+        if (!user.verified) {
+            logger.warn(`User with email ${email} not verified`);
+            return next(
+                new AppError(
+                    'The user with that email is not verified',
+                    HttpStatusCodes.OK
+                )
+            );
+        }
+
+        const passwordResetCode = nanoid();
+
+        user.passwordResetCode = passwordResetCode;
+
+        await user.save();
+
+        await sendEmail({
+            from: 'example@test.com',
+            to: email,
+            subject: 'Reset your password',
+            text: `Reset code: ${passwordResetCode} id: ${user._id}`,
+        });
+        logger.warn(`Password reset code sent to ${email}`);
+
+        res.status(HttpStatusCodes.OK).json({
+            status: 'success',
+            message:
+                'If a user with that email is registered, an email will be sent to reset the password',
+        });
+    }
+);
+
+export const resetPasswordHandler = asyncHandler(
+    async (
+        req: Request<
+            ResetPasswordInput['params'],
+            {},
+            ResetPasswordInput['body']
+        >,
+        res,
+        next
+    ) => {
+        const { id, resetCode } = req.params;
+        const { password } = req.body;
+
+        const user = await findUserById(id);
+
+        if (
+            !user ||
+            !user.passwordResetCode ||
+            user.passwordResetCode !== resetCode
+        ) {
+            logger.warn('Password reset code is incorrect');
+            return next(
+                new AppError(
+                    'Could not reset password',
+                    HttpStatusCodes.BAD_REQUEST
+                )
+            );
+        }
+
+        user.passwordResetCode = null;
+        user.password = password;
+
+        await user.save();
+
+        await sendEmail({
+            from: 'example@test.com',
+            to: user.email,
+            subject: 'Your password has been reset',
+            text: `Hi, ${user.firstName} ${user.lastName}. Your password has been reset. Please login with your new password.`,
+        });
+
+        res.status(HttpStatusCodes.OK).json({
+            status: 'success',
+            message: 'Password reset successfully',
+        });
     }
 );

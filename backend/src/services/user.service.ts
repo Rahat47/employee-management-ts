@@ -9,3 +9,8 @@ export const findUserById = async (id: string) => {
     const user = await UserModel.findById(id);
     return user;
 };
+
+export const findUser = async (input: Partial<User>) => {
+    const user = await UserModel.findOne(input);
+    return user;
+};

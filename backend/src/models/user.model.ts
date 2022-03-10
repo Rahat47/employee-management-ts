@@ -5,6 +5,7 @@ import {
     Severity,
     pre,
     DocumentType,
+    index,
 } from '@typegoose/typegoose';
 import { nanoid } from 'nanoid';
 import argon2 from 'argon2';
@@ -19,6 +20,10 @@ import logger from '../utils/logger';
     this.password = hash;
 
     return next();
+})
+@index({
+    email: 1,
+    verified: 1,
 })
 @modelOptions({
     schemaOptions: {

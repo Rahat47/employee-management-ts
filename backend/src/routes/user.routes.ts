@@ -1,10 +1,17 @@
 import { Router } from 'express';
 import {
     createUserHandler,
+    forgotPasswordHandler,
+    resetPasswordHandler,
     verifyUserHandler,
 } from '../controllers/user.controller';
 import validateReource from '../middlewares/validateResource';
-import { createUserSchema, verifyUserSchema } from '../schemas/user.schema';
+import {
+    createUserSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
+    verifyUserSchema,
+} from '../schemas/user.schema';
 
 const router = Router();
 
@@ -16,4 +23,15 @@ router.get(
     verifyUserHandler
 );
 
+router.post(
+    '/forgot-password',
+    validateReource(forgotPasswordSchema),
+    forgotPasswordHandler
+);
+
+router.post(
+    '/reset-password/:id/:resetCode',
+    validateReource(resetPasswordSchema),
+    resetPasswordHandler
+);
 export default router;
