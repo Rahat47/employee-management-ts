@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
     createUserHandler,
     forgotPasswordHandler,
+    getCurrentUserHandler,
     resetPasswordHandler,
     verifyUserHandler,
 } from '../controllers/user.controller';
@@ -14,6 +15,8 @@ import {
 } from '../schemas/user.schema';
 
 const router = Router();
+
+router.get('/me', getCurrentUserHandler);
 
 router.route('/').post(validateReource(createUserSchema), createUserHandler);
 

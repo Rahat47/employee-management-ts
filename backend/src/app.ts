@@ -5,6 +5,7 @@ import cors from 'cors';
 import connectToDB from './utils/connectToDB';
 import logger from './utils/logger';
 import router from './routes';
+import deserializeUser from './middlewares/deserializeUser';
 
 const PORT = config.get<number>('port');
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(deserializeUser);
 app.use(router);
 
 app.listen(PORT, async () => {

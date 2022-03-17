@@ -11,6 +11,14 @@ import { nanoid } from 'nanoid';
 import argon2 from 'argon2';
 import logger from '../utils/logger';
 
+export const privateFields = [
+    'password',
+    'passwordResetCode',
+    'verificationCode',
+    '__v',
+    'verified',
+];
+
 @pre<User>('save', async function (next) {
     if (!this.isModified('password')) {
         return next();

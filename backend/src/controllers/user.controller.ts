@@ -188,3 +188,23 @@ export const resetPasswordHandler = asyncHandler(
         });
     }
 );
+
+export const getCurrentUserHandler = asyncHandler(async (req, res, next) => {
+    const user = res.locals.user;
+
+    if (user) {
+        res.status(HttpStatusCodes.OK).json({
+            status: 'success',
+            data: {
+                user: user,
+            },
+            message: 'User found',
+        });
+    } else {
+        res.status(HttpStatusCodes.OK).json({
+            status: 'success',
+            data: {},
+            message: 'User not found',
+        });
+    }
+});
