@@ -19,6 +19,12 @@ export const privateFields = [
     'verified',
 ];
 
+export enum userRoles {
+    generalAuthority = 'generalAuthority',
+    systemAdmin = 'systemAdmin',
+    administrativeAuthority = 'administrativeAuthority',
+}
+
 @pre<User>('save', async function (next) {
     if (!this.isModified('password')) {
         return next();
@@ -62,6 +68,16 @@ export class User {
 
     @prop()
     passwordResetCode: string | null;
+
+    @prop({
+        enum: [
+            userRoles.generalAuthority,
+            userRoles.systemAdmin,
+            userRoles.administrativeAuthority,
+        ],
+        default: userRoles.generalAuthority,
+    })
+    role: userRoles;
 
     async validatePassword(this: DocumentType<User>, password: string) {
         try {

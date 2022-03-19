@@ -28,8 +28,18 @@ export const verifyJWT = <T>(
 
     try {
         const decoded = jwt.verify(token, signingKey);
-        return decoded as T;
-    } catch (error) {
-        return null;
+        return {
+            decoded: decoded as T,
+            valid: true,
+            expired: false,
+        };
+    } catch (error: any) {
+        return {
+            valid: false,
+            expired:
+                error.name === 'TokenExpiredError' ||
+                error.message === 'jwt expired',
+            decoded: null,
+        };
     }
 };
