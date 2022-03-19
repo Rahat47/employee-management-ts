@@ -35,7 +35,7 @@ export enum userRoles {
 
     return next();
 })
-@index({
+@index<User>({
     email: 1,
     verified: 1,
 })

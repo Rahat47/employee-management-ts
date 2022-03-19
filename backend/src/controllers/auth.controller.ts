@@ -13,7 +13,6 @@ import {
 import { findUser, findUserById } from '../services/user.service';
 import AppError from '../utils/AppError';
 import { verifyJWT } from '../utils/jwt';
-import logger from '../utils/logger';
 
 export const createSessionHandler = asyncHandler(
     async (req: Request<{}, {}, CreateSessionInput>, res, next) => {
