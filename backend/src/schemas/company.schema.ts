@@ -31,3 +31,28 @@ export const createCompanySchema = object({
 });
 
 export type CreateCompanyInput = TypeOf<typeof createCompanySchema>['body'];
+
+export const updateCompanySchema = object({
+    body: object({
+        companyName: string().optional(),
+        companyNameKana: string().optional(),
+        zipCode: number().optional(),
+        address: string().optional(),
+        telephoneNumber: string().optional(),
+        url: string().optional(),
+        dateOfEstablishment: string()
+            .refine(
+                (value: string) =>
+                    new Date(value).toString() !== 'Invalid Date',
+                'Please enter a valid date'
+            )
+            .optional(),
+    }),
+    params: object({
+        id: string({
+            required_error: 'Company id is required',
+        }),
+    }),
+});
+
+export type UpdateCompanyInput = TypeOf<typeof updateCompanySchema>;

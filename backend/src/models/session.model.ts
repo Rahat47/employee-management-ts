@@ -2,10 +2,7 @@ import { getModelForClass, prop, Ref } from '@typegoose/typegoose';
 import { User } from './user.model';
 
 export class Session {
-    @prop({
-        required: true,
-        ref: () => User,
-    })
+    @prop({ required: true, ref: () => User })
     user: Ref<User>;
 
     @prop({ default: true })

@@ -6,6 +6,6 @@ export const omitUserData = (user: DocumentType<User>) => {
     return omit(user.toJSON(), privateFields);
 };
 
-export const omitData = (data: any) => {
-    return omit(data, privateFields);
+export const omitData = <T>(data: T | any, fields: string[]) => {
+    return omit(data, fields);
 };

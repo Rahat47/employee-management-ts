@@ -6,10 +6,12 @@ import {
     pre,
     DocumentType,
     index,
+    Ref,
 } from '@typegoose/typegoose';
 import { nanoid } from 'nanoid';
 import argon2 from 'argon2';
 import logger from '../utils/logger';
+import { Company } from './company.model';
 
 export const privateFields = [
     'password',
@@ -75,9 +77,12 @@ export class User {
             userRoles.systemAdmin,
             userRoles.administrativeAuthority,
         ],
-        default: userRoles.generalAuthority,
+        default: () => userRoles.generalAuthority,
     })
-    role: userRoles;
+    role: string;
+
+    @prop({ default: null, required: true, ref: () => Company })
+    company: Ref<Company> | null;
 
     async validatePassword(this: DocumentType<User>, password: string) {
         try {

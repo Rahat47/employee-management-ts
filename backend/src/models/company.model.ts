@@ -1,4 +1,4 @@
-import { getModelForClass, prop, index } from '@typegoose/typegoose';
+import { getModelForClass, prop, index, Severity } from '@typegoose/typegoose';
 
 @index<Company>({
     email: 1,
@@ -11,53 +11,36 @@ export class Company {
     @prop({ required: true })
     companyNameKana: string;
 
-    @prop({
-        required: true,
-    })
+    @prop({ required: true })
     zipCode: number;
 
-    @prop({
-        required: true,
-        maxlength: 120,
-    })
+    @prop({ required: true, maxlength: 120 })
     address: string;
 
-    @prop({
-        required: true,
-    })
+    @prop({ required: true })
     telephoneNumber: string;
 
-    @prop({
-        required: true,
-        unique: true,
-        lowercase: true,
-    })
+    @prop({ required: true, unique: true, lowercase: true })
     email: string;
 
-    @prop({
-        default: '',
-    })
+    @prop({ default: '' })
     url: string;
 
-    @prop({
-        default: new Date(),
-        type: Date,
-    })
+    @prop({ default: new Date(), type: () => Date })
     dateOfEstablishment: Date;
 
-    @prop({
-        default: '',
-    })
+    @prop({ default: '' })
     remarks: string;
 
-    @prop({
-        default: [],
-    })
+    @prop({ default: [], type: () => [String] })
     images: string[];
 }
 
 export const CompanyModel = getModelForClass(Company, {
     schemaOptions: {
         timestamps: true,
+    },
+    options: {
+        allowMixed: Severity.ALLOW,
     },
 });
